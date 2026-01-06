@@ -13,7 +13,10 @@
             "submitButton": "Sign In",
             "signingIn": "Signing in...",
             "noAccount": "Don't have an account?",
-            "signUpLink": "Sign up"
+            "signUpLink": "Sign up",
+            "errors": {
+                "invalidCredentials": "Invalid email or password"
+            }
         },
         "register": {
             "title": "Create Account",
@@ -35,6 +38,10 @@
                 "emailExists": "Email is already registered"
             }
         },
-        "divider": "or"
+        "divider": "or",
+        "errors": {
+            "unauthorized": "Authentication required",
+            "invalidToken": "Invalid or expired token. Please log in again."
+        }
     }
 }

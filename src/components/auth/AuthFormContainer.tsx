@@ -10,46 +10,51 @@ import { Button } from '@/components/ui/button';
 import { useRegisterMutation } from '@/hooks/auth/useRegisterMutation';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
+import { useLoginMutation } from '@/hooks/auth/useLoginMutation';
 
 type AuthMode = 'login' | 'register';
 
 export function AuthFormContainer() {
     const t = useTranslations('auth');
     const [mode, setMode] = useState<AuthMode>('login');
-    const [isLoading, setIsLoading] = useState(false);
 
+    const { mutateAsync: loginMutationAsync, isPending: isLoginPending } = useLoginMutation();
     const handleLogin = async (data: LoginFormData) => {
-        setIsLoading(true);
+        if (isLoginPending) return;
+
         try {
-            console.log('Login data:', data);
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const response = await loginMutationAsync(data);
+            console.log('Login data:', response.data);
         } catch (error) {
-            console.error('Login error:', error);
-        } finally {
-            setIsLoading(false);
+            if (error instanceof AxiosError && error.status === 400) {
+                toast.error(t(error.response?.data?.message));
+            } else {
+                console.log('Login error:', error);
+            }
         }
     };
 
-    const { mutateAsync: registerMutationAsync } = useRegisterMutation();
+    const { mutateAsync: registerMutationAsync, isPending: isRegisterPending } = useRegisterMutation();
     const handleRegister = async (data: RegisterFormData) => {
-        setIsLoading(true);
+        if (isRegisterPending) return;
+
         try {
             const { confirmPassword, ...registerPayload } = data;
             const response = await registerMutationAsync(registerPayload);
 
             toast.success(t('register.successMessage', { username: response.data.name }), { duration: 5000 });
+            setMode('login'); // Switch to login mode after successful registration
         } catch (error) {
             if (error instanceof AxiosError && error.status === 400) {
                 toast.error(t(error.response?.data?.message));
             } else {
                 console.log('Registration error:', error);
             }
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const isLoginMode = mode === 'login';
+    const isLoading = isLoginPending || isRegisterPending;
 
     return (
         <Card className="w-full max-w-md">

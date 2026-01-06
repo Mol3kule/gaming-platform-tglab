@@ -13,7 +13,10 @@
             "submitButton": "Prisijungti",
             "signingIn": "Jungiamasi...",
             "noAccount": "Neturite paskyros?",
-            "signUpLink": "Registruotis"
+            "signUpLink": "Registruotis",
+            "errors": {
+                "invalidCredentials": "Neteisingas el. paštas arba slaptažodis"
+            }
         },
         "register": {
             "title": "Sukurti paskyrą",
@@ -35,6 +38,10 @@
                 "emailExists": "El. paštas jau užregistruotas"
             }
         },
-        "divider": "arba"
+        "divider": "arba",
+        "errors": {
+            "unauthorized": "Reikalinga autentifikacija",
+            "invalidToken": "Netinkamas arba pasibaigęs prieigos raktas. Prašome prisijungti iš naujo."
+        }
     }
 }

@@ -3,6 +3,9 @@ import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
 import { Player } from './types/player.types';
+import { generateToken, verifyToken, extractTokenFromHeader } from './lib/auth/jwt';
+import { hashPassword, comparePassword } from './lib/auth/password';
+import { authMiddleware, AuthRequest } from './middleware/auth.middleware';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -18,18 +21,20 @@ app.prepare().then(() => {
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
 
-    server.post('/api/register', (req, res) => {
+    server.post('/api/register', async (req, res) => {
         const { username, email, password } = req.body;
         const id = faker.string.uuid();
 
         if (players.find((player) => player.email === email))
             return res.status(400).json({ message: 'register.errors.emailExists' });
 
+        const hashedPassword = await hashPassword(password);
+
         players.push({
             id,
             name: username,
             email,
-            password,
+            password: hashedPassword,
             balance: 1000,
             currency: 'EUR',
             accessToken: null,
@@ -43,15 +48,45 @@ app.prepare().then(() => {
         });
     });
 
-    server.post('/api/bet', (req, res) => {
+    server.post('/api/login', async (req, res) => {
+        const { email, password } = req.body;
+
+        const player = players.find((player) => player.email === email);
+
+        if (!player) {
+            return res.status(400).json({ message: 'login.errors.invalidCredentials' });
+        }
+
+        const isPasswordValid = await comparePassword(password, player.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'login.errors.invalidCredentials' });
+        }
+
+        // Generate JWT token
+        const accessToken = generateToken({
+            userId: player.id,
+            email: player.email,
+            name: player.name,
+        });
+
+        player.accessToken = accessToken;
+
+        res.json({
+            id: player.id,
+            name: player.name,
+            balance: player.balance,
+            currency: player.currency,
+            accessToken,
+        });
+    });
+
+    server.post('/api/bet', authMiddleware, (req: AuthRequest, res) => {
         const { amount } = req.body;
-        const authorization = req.headers.authorization;
 
-        if (!authorization) return res.status(401).json({ message: 'Invalid token' });
+        const player = players.find((player) => player.id === req.user?.userId);
 
-        const player = players.find((player) => player.accessToken === authorization.replace('Bearer ', ''));
-
-        if (!player) return res.status(401).json({ message: 'Invalid token' });
+        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
         if (player.balance < amount) return res.status(400).json({ message: 'Insufficient balance' });
 
@@ -95,17 +130,14 @@ app.prepare().then(() => {
         });
     });
 
-    server.get('/api/my-bets', (req, res) => {
+    server.get('/api/my-bets', authMiddleware, (req: AuthRequest, res) => {
         const { id, status, page, limit } = req.query;
-        const authorization = req.headers.authorization;
-
-        if (!authorization) return res.status(401).json({ message: 'Invalid token' });
 
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
-        const player = players.find((player) => player.accessToken === authorization.replace('Bearer ', ''));
+        const player = players.find((player) => player.id === req.user?.userId);
 
-        if (!player) return res.status(401).json({ message: 'Invalid token' });
+        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
         const bets = player.bets
             .filter((bet) => (!id || bet.id === id) && (!status || bet.status === status) && bet)
@@ -122,15 +154,12 @@ app.prepare().then(() => {
         });
     });
 
-    server.delete('/api/my-bet/:id', (req, res) => {
+    server.delete('/api/my-bet/:id', authMiddleware, (req: AuthRequest, res) => {
         const { id } = req.params;
-        const authorization = req.headers.authorization;
 
-        if (!authorization) return res.status(401).json({ message: 'Invalid token' });
+        const player = players.find((player) => player.id === req.user?.userId);
 
-        const player = players.find((player) => player.accessToken === authorization.replace('Bearer ', ''));
-
-        if (!player) return res.status(401).json({ message: 'Invalid token' });
+        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
         const bet = player.bets.find((bet) => bet.id === id);
 
@@ -158,17 +187,14 @@ app.prepare().then(() => {
         });
     });
 
-    server.get('/api/my-transactions', (req, res) => {
+    server.get('/api/my-transactions', authMiddleware, (req: AuthRequest, res) => {
         const { id, type, page, limit } = req.query;
-        const authorization = req.headers.authorization;
-
-        if (!authorization) return res.status(401).json({ message: 'Invalid token' });
 
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
-        const player = players.find((player) => player.accessToken === authorization.replace('Bearer ', ''));
+        const player = players.find((player) => player.id === req.user?.userId);
 
-        if (!player) return res.status(401).json({ message: 'Invalid token' });
+        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
         const transactions = player.transactions
             .filter(
