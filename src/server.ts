@@ -7,7 +7,7 @@ import { Player } from './types/player.types';
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
-const port = process.env.SERVER_PORT || 3001;
+const port = process.env.PORT || 3000;
 
 const players: Player[] = [];
 
@@ -18,18 +18,16 @@ app.prepare().then(() => {
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
 
-    server.post('/register', (req, res) => {
-        const { name, email, password, confirmPassword } = req.body;
+    server.post('/api/register', (req, res) => {
+        const { username, email, password } = req.body;
         const id = faker.string.uuid();
 
         if (players.find((player) => player.email === email))
-            return res.status(400).json({ message: 'Email already registered' });
-
-        if (password !== confirmPassword) return res.status(400).json({ message: 'Passwords do not match' });
+            return res.status(400).json({ message: 'register.errors.emailExists' });
 
         players.push({
             id,
-            name,
+            name: username,
             email,
             password,
             balance: 1000,
@@ -41,11 +39,11 @@ app.prepare().then(() => {
 
         res.json({
             id,
-            name,
+            name: username,
         });
     });
 
-    server.post('/bet', (req, res) => {
+    server.post('/api/bet', (req, res) => {
         const { amount } = req.body;
         const authorization = req.headers.authorization;
 
@@ -97,7 +95,7 @@ app.prepare().then(() => {
         });
     });
 
-    server.get('/my-bets', (req, res) => {
+    server.get('/api/my-bets', (req, res) => {
         const { id, status, page, limit } = req.query;
         const authorization = req.headers.authorization;
 
@@ -124,7 +122,7 @@ app.prepare().then(() => {
         });
     });
 
-    server.delete('/my-bet/:id', (req, res) => {
+    server.delete('/api/my-bet/:id', (req, res) => {
         const { id } = req.params;
         const authorization = req.headers.authorization;
 
@@ -160,7 +158,7 @@ app.prepare().then(() => {
         });
     });
 
-    server.get('/my-transactions', (req, res) => {
+    server.get('/api/my-transactions', (req, res) => {
         const { id, type, page, limit } = req.query;
         const authorization = req.headers.authorization;
 

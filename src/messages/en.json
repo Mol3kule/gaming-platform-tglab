@@ -1,5 +1,40 @@
 {
     "app": {
         "title": "Gaming Platform"
+    },
+    "auth": {
+        "login": {
+            "title": "Welcome Back",
+            "description": "Sign in to your account to continue",
+            "emailLabel": "Email",
+            "emailPlaceholder": "you@example.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "••••••••",
+            "submitButton": "Sign In",
+            "signingIn": "Signing in...",
+            "noAccount": "Don't have an account?",
+            "signUpLink": "Sign up"
+        },
+        "register": {
+            "title": "Create Account",
+            "description": "Sign up to get started with our gaming platform",
+            "usernameLabel": "Username",
+            "usernamePlaceholder": "johndoe",
+            "emailLabel": "Email",
+            "emailPlaceholder": "you@example.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "••••••••",
+            "confirmPasswordLabel": "Confirm Password",
+            "confirmPasswordPlaceholder": "••••••••",
+            "submitButton": "Create Account",
+            "creatingAccount": "Creating account...",
+            "hasAccount": "Already have an account?",
+            "signInLink": "Sign in",
+            "successMessage": "Account with username {username} created successfully. You can now sign in.",
+            "errors": {
+                "emailExists": "Email is already registered"
+            }
+        },
+        "divider": "or"
     }
 }

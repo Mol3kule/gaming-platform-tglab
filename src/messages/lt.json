@@ -1,5 +1,40 @@
 {
     "app": {
         "title": "Gaming Platform"
+    },
+    "auth": {
+        "login": {
+            "title": "Sveiki sugrįžę",
+            "description": "Prisijunkite prie savo paskyros",
+            "emailLabel": "El. paštas",
+            "emailPlaceholder": "you@example.com",
+            "passwordLabel": "Slaptažodis",
+            "passwordPlaceholder": "••••••••",
+            "submitButton": "Prisijungti",
+            "signingIn": "Jungiamasi...",
+            "noAccount": "Neturite paskyros?",
+            "signUpLink": "Registruotis"
+        },
+        "register": {
+            "title": "Sukurti paskyrą",
+            "description": "Registruokitės ir pradėkite naudotis žaidimų platforma",
+            "usernameLabel": "Slapyvardis",
+            "usernamePlaceholder": "ProGamer123",
+            "emailLabel": "El. paštas",
+            "emailPlaceholder": "you@example.com",
+            "passwordLabel": "Slaptažodis",
+            "passwordPlaceholder": "••••••••",
+            "confirmPasswordLabel": "Patvirtinti slaptažodį",
+            "confirmPasswordPlaceholder": "••••••••",
+            "submitButton": "Sukurti paskyrą",
+            "creatingAccount": "Kuriama paskyra...",
+            "hasAccount": "Jau turite paskyrą?",
+            "signInLink": "Prisijungti",
+            "successMessage": "Paskyra su slapyvardžiu {username} sėkmingai sukurta. Dabar galite prisijungti.",
+            "errors": {
+                "emailExists": "El. paštas jau užregistruotas"
+            }
+        },
+        "divider": "arba"
     }
 }
