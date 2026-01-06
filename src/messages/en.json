@@ -14,6 +14,7 @@
             "signingIn": "Signing in...",
             "noAccount": "Don't have an account?",
             "signUpLink": "Sign up",
+            "successMessage": "Welcome back, {username}!",
             "errors": {
                 "invalidCredentials": "Invalid email or password"
             }

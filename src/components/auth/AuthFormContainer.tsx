@@ -8,15 +8,18 @@ import type { LoginFormData, RegisterFormData } from '@/lib/validators/auth.vali
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRegisterMutation } from '@/hooks/auth/useRegisterMutation';
+import { useLoginMutation } from '@/hooks/auth/useLoginMutation';
+import { useAuth } from '@/contexts/AuthContext';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import { useLoginMutation } from '@/hooks/auth/useLoginMutation';
+import { SafeUser } from '@/types/player.types';
 
 type AuthMode = 'login' | 'register';
 
 export function AuthFormContainer() {
     const t = useTranslations('auth');
     const [mode, setMode] = useState<AuthMode>('login');
+    const { login } = useAuth();
 
     const { mutateAsync: loginMutationAsync, isPending: isLoginPending } = useLoginMutation();
     const handleLogin = async (data: LoginFormData) => {
@@ -24,7 +27,11 @@ export function AuthFormContainer() {
 
         try {
             const response = await loginMutationAsync(data);
-            console.log('Login data:', response.data);
+            const { accessToken, ...user } = response.data;
+
+            login(user as SafeUser); // Update auth context with logged-in user
+
+            toast.success(t('login.successMessage', { username: user.name }));
         } catch (error) {
             if (error instanceof AxiosError && error.status === 400) {
                 toast.error(t(error.response?.data?.message));

@@ -16,6 +16,8 @@ export type Player = {
     transactions: Transaction[];
 };
 
+export type SafeUser = Expand<Omit<Player, 'password' | 'accessToken' | 'bets' | 'transactions' | 'email'>>;
+
 export type Transaction = {
     id: string;
     amount: number;

@@ -14,6 +14,7 @@
             "signingIn": "Jungiamasi...",
             "noAccount": "Neturite paskyros?",
             "signUpLink": "Registruotis",
+            "successMessage": "Sveiki sugrįžę, {username}!",
             "errors": {
                 "invalidCredentials": "Neteisingas el. paštas arba slaptažodis"
             }

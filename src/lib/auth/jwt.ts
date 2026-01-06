@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'prod-key';
-const JWT_EXPIRES_IN = '7d';
+const JWT_EXPIRES_IN = 3600 * 24 * 7;
 
 export interface JWTPayload {
     userId: string;
@@ -31,9 +31,9 @@ export function verifyToken(token: string): JWTPayload | null {
         const decoded = jwt.verify(token, JWT_SECRET, {
             issuer: 'gaming-platform',
         }) as JWTPayload;
+
         return decoded;
-    } catch (error) {
-        console.error('JWT verification failed:', error);
+    } catch {
         return null;
     }
 }
@@ -47,5 +47,6 @@ export function extractTokenFromHeader(authHeader: string | undefined): string |
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
+
     return authHeader.replace('Bearer ', '');
 }

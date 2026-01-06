@@ -1,9 +1,11 @@
+import 'dotenv/config'; // Load .env file
+
 import next from 'next';
 import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
 import { Player } from './types/player.types';
-import { generateToken, verifyToken, extractTokenFromHeader } from './lib/auth/jwt';
+import { generateToken, extractTokenFromHeader } from './lib/auth/jwt';
 import { hashPassword, comparePassword } from './lib/auth/password';
 import { authMiddleware, AuthRequest } from './middleware/auth.middleware';
 
@@ -12,10 +14,21 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = process.env.PORT || 3000;
 
-const players: Player[] = [];
-
-app.prepare().then(() => {
+app.prepare().then(async () => {
     const server = express();
+    const players: Player[] = [
+        {
+            id: faker.string.uuid(),
+            name: 'Test',
+            email: 'test@gmail.com',
+            password: await hashPassword('test123'),
+            balance: 1000,
+            currency: 'EUR',
+            accessToken: null,
+            bets: [],
+            transactions: [],
+        },
+    ];
     const httpServer = createServer(server);
 
     server.use(express.json());
@@ -29,7 +42,6 @@ app.prepare().then(() => {
             return res.status(400).json({ message: 'register.errors.emailExists' });
 
         const hashedPassword = await hashPassword(password);
-
         players.push({
             id,
             name: username,
@@ -71,6 +83,8 @@ app.prepare().then(() => {
         });
 
         player.accessToken = accessToken;
+
+        res.cookie('auth_token', accessToken);
 
         res.json({
             id: player.id,
@@ -210,6 +224,23 @@ app.prepare().then(() => {
             total,
             page: Number(page),
             limit: Number(limit),
+        });
+    });
+
+    server.get('/api/me', authMiddleware, (req: AuthRequest, res) => {
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        );
+
+        if (!player) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        res.json({
+            id: player.id,
+            name: player.name,
+            balance: player.balance,
+            currency: player.currency,
         });
     });
 
