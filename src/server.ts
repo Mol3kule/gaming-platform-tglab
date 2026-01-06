@@ -1,5 +1,6 @@
 import next from 'next';
-import express, { Request, Response } from 'express';
+import express from 'express';
+import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
 import { Player } from './types/player.types';
 
@@ -8,13 +9,14 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = process.env.SERVER_PORT || 3001;
 
+const players: Player[] = [];
+
 app.prepare().then(() => {
     const server = express();
+    const httpServer = createServer(server);
 
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
-
-    const players: Player[] = [];
 
     server.post('/register', (req, res) => {
         const { name, email, password, confirmPassword } = req.body;
@@ -188,11 +190,9 @@ app.prepare().then(() => {
     });
 
     // Let Next.js handle all other routes
-    server.all('*', (req: Request, res: Response) => {
-        return handle(req, res);
-    });
+    server.all(/.*/, (req, res) => handle(req, res));
 
-    server.listen(port, () => {
+    httpServer.listen(port, () => {
         console.log(`🚀 Server ready on http://localhost:${port}`);
     });
 });
