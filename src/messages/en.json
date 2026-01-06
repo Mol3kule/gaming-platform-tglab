@@ -43,6 +43,7 @@
         "errors": {
             "unauthorized": "Authentication required",
             "invalidToken": "Invalid or expired token. Please log in again."
-        }
+        },
+        "logout": "Logout"
     }
 }

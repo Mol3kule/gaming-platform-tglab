@@ -43,6 +43,7 @@
         "errors": {
             "unauthorized": "Reikalinga autentifikacija",
             "invalidToken": "Netinkamas arba pasibaigęs prieigos raktas. Prašome prisijungti iš naujo."
-        }
+        },
+        "logout": "Atsijungti"
     }
 }

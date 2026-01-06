@@ -14,14 +14,14 @@ export function UserMenu() {
     return (
         <div className="flex items-center gap-4">
             <div className="text-sm">
-                <p className="font-medium">{user.name}</p>
-                <p className="text-muted-foreground">
+                <p className="font-medium text-right">{user.name}</p>
+                <p className="text-muted-foreground text-right">
                     {user.balance} {user.currency}
                 </p>
             </div>
             <Button variant="outline" size="sm" onClick={logout} className="gap-2">
                 <LogOut className="size-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t('logout')}</span>
             </Button>
         </div>
     );

@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { i18nConfig } from '@/i18n/config';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
+import { Header } from '@/components/header';
 
 interface Props {
     children: ReactNode;
@@ -30,5 +31,10 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
 }
 
 export default async function DashboardLayout({ children }: Readonly<Props>) {
-    return <div>{children}</div>;
+    return (
+        <div>
+            <Header />
+            {children}
+        </div>
+    );
 }

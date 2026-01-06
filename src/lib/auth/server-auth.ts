@@ -2,12 +2,13 @@
 
 import { getServerToken, getServerUser } from '@/lib/auth/server-token-storage';
 import { verifyToken } from '@/lib/auth/jwt';
+import { cache } from 'react';
 
 /**
  * Get authenticated user on server-side
  * Use in Server Components or Server Actions
  */
-export async function getAuthUser() {
+export const getAuthUser = cache(async () => {
     const token = await getServerToken();
 
     if (!token) {
@@ -25,7 +26,7 @@ export async function getAuthUser() {
     const user = await getServerUser(token);
 
     return user;
-}
+});
 
 /**
  * Require authentication on server-side

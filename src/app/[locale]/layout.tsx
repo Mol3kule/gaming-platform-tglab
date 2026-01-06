@@ -7,6 +7,7 @@ import { ReactNode } from 'react';
 import { AppProvider } from '@/providers/app.provider';
 import { Toaster } from '@/components/ui/sonner';
 import '../globals.css';
+import { getAuthUser } from '@/lib/auth/server-auth';
 
 interface Props {
     children: ReactNode;
@@ -43,11 +44,13 @@ export default async function RootLayout({ children, params }: Readonly<Props>) 
     const messages = await getMessages();
     const { locale } = await params;
 
+    const user = await getAuthUser();
+
     return (
         <html lang={locale ?? i18nConfig.defaultLocale}>
             <body className={`${inter.variable} antialiased`}>
                 <NextIntlClientProvider messages={messages}>
-                    <AppProvider>{children}</AppProvider>
+                    <AppProvider user={user}>{children}</AppProvider>
                     <Toaster />
                 </NextIntlClientProvider>
             </body>

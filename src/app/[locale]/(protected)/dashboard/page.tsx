@@ -8,5 +8,9 @@ export default async function DasboardPage() {
         redirect('/');
     }
 
-    return <div>Dashboard Page</div>;
+    return (
+        <div className="flex justify-center py-4">
+            <div className="container">Dashboard Page for {user.name}</div>
+        </div>
+    );
 }

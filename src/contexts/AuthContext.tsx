@@ -7,7 +7,6 @@ import { getAuthUser } from '@/lib/auth/server-auth';
 
 interface AuthContextType {
     user: SafeUser | null;
-    isLoading: boolean;
     isAuthenticated: boolean;
     login: (user: SafeUser) => void;
     logout: () => Promise<void>;
@@ -16,9 +15,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUserState] = useState<SafeUser | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+interface AuthProviderProps {
+    children: ReactNode;
+    user: SafeUser | null;
+}
+
+export function AuthProvider({ children, user }: AuthProviderProps) {
+    const [userState, setUserState] = useState<SafeUser | null>(user);
 
     const login = (newUser: SafeUser) => {
         setUserState(newUser);
@@ -40,9 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const value: AuthContextType = {
-        user,
-        isLoading,
-        isAuthenticated: !!user,
+        user: userState,
+        isAuthenticated: !!userState,
         login,
         logout,
         refreshUser,
