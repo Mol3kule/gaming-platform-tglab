@@ -5,10 +5,9 @@ import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
 import { Currency, Player } from './types/player.types';
-import { Game } from './types/game.types';
 import { generateToken, extractTokenFromHeader } from './lib/auth/jwt';
 import { hashPassword, comparePassword } from './lib/auth/password';
-import { authMiddleware, AuthRequest } from './middleware/auth.middleware';
+import { authMiddleware } from './middleware/auth.middleware';
 import { GamesData } from './lib/gamesData';
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -106,12 +105,12 @@ app.prepare().then(async () => {
         });
     });
 
-    server.post('/api/bet', authMiddleware, (req: AuthRequest, res) => {
+    server.post('/api/bet', authMiddleware, (req, res) => {
         const { amount } = req.body;
 
-        const player = players.find((player) => player.accessToken === req.user?.userId);
-
-        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        )!;
 
         if (player.balance < amount) return res.status(400).json({ message: 'Insufficient balance' });
 
@@ -155,12 +154,14 @@ app.prepare().then(async () => {
         });
     });
 
-    server.get('/api/my-bets', authMiddleware, (req: AuthRequest, res) => {
+    server.get('/api/my-bets', authMiddleware, (req, res) => {
         const { id, status, page, limit } = req.query;
 
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
-        const player = players.find((player) => player.id === req.user?.userId);
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        )!;
 
         if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
@@ -179,12 +180,12 @@ app.prepare().then(async () => {
         });
     });
 
-    server.delete('/api/my-bet/:id', authMiddleware, (req: AuthRequest, res) => {
+    server.delete('/api/my-bet/:id', authMiddleware, (req, res) => {
         const { id } = req.params;
 
-        const player = players.find((player) => player.id === req.user?.userId);
-
-        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        )!;
 
         const bet = player.bets.find((bet) => bet.id === id);
 
@@ -212,14 +213,14 @@ app.prepare().then(async () => {
         });
     });
 
-    server.get('/api/my-transactions', authMiddleware, (req: AuthRequest, res) => {
+    server.get('/api/my-transactions', authMiddleware, (req, res) => {
         const { id, type, page, limit } = req.query;
 
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
-        const player = players.find((player) => player.id === req.user?.userId);
-
-        if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        )!;
 
         const transactions = player.transactions
             .filter(
@@ -259,6 +260,7 @@ app.prepare().then(async () => {
 
     server.get('/api/games/:id', authMiddleware, (req, res) => {
         const { id } = req.params;
+
         const game = games.find((g) => g.id === id);
 
         if (!game) {
@@ -268,7 +270,7 @@ app.prepare().then(async () => {
         res.json(game);
     });
 
-    server.get('/api/me', authMiddleware, (req: AuthRequest, res) => {
+    server.get('/api/me', authMiddleware, (req, res) => {
         const player = players.find(
             (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
         )!;
