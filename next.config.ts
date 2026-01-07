@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    images: {
+        remotePatterns: [
+            {
+                hostname: 'images.unsplash.com',
+            },
+        ],
+    },
 };
 
 export default withNextIntl(nextConfig);

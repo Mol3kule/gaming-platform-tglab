@@ -45,5 +45,15 @@
             "invalidToken": "Netinkamas arba pasibaigęs prieigos raktas. Prašome prisijungti iš naujo."
         },
         "logout": "Atsijungti"
+    },
+    "navigation": {
+        "general": {
+            "title": "Pagrindinis",
+            "games": "Žaidimai"
+        },
+        "additional": {
+            "title": "Papildoma",
+            "transactions": "Istorija"
+        }
     }
 }

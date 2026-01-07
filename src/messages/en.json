@@ -45,5 +45,15 @@
             "invalidToken": "Invalid or expired token. Please log in again."
         },
         "logout": "Logout"
+    },
+    "navigation": {
+        "general": {
+            "title": "General",
+            "games": "Games"
+        },
+        "additional": {
+            "title": "Additional",
+            "transactions": "History"
+        }
     }
 }

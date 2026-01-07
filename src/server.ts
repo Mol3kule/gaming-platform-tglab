@@ -5,9 +5,11 @@ import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
 import { Player } from './types/player.types';
+import { Game } from './types/game.types';
 import { generateToken, extractTokenFromHeader } from './lib/auth/jwt';
 import { hashPassword, comparePassword } from './lib/auth/password';
 import { authMiddleware, AuthRequest } from './middleware/auth.middleware';
+import { GamesData } from './lib/gamesData';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -30,6 +32,9 @@ app.prepare().then(async () => {
             transactions: [],
         },
     ];
+
+    const games = GamesData;
+
     const httpServer = createServer(server);
 
     server.use(express.json());
@@ -226,6 +231,33 @@ app.prepare().then(async () => {
             page: Number(page),
             limit: Number(limit),
         });
+    });
+
+    server.get('/api/games', (req, res) => {
+        const { type, page, limit } = req.query;
+
+        if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
+
+        const total = games.length;
+        const data = games.slice((Number(page) - 1) * Number(limit), Number(page) * Number(limit));
+
+        res.json({
+            data,
+            total,
+            page: Number(page),
+            limit: Number(limit),
+        });
+    });
+
+    server.get('/api/games/:id', (req, res) => {
+        const { id } = req.params;
+        const game = games.find((g) => g.id === id);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        res.json(game);
     });
 
     server.get('/api/me', authMiddleware, (req: AuthRequest, res) => {
