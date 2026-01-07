@@ -1,5 +1,6 @@
 'use client';
 
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SafeUser } from '@/types/player.types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,7 +22,9 @@ interface AppProviderProps {
 export const AppProvider = ({ children, user }: AppProviderProps) => {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider user={user}>{children}</AuthProvider>
+            <AuthProvider user={user}>
+                <SidebarProvider>{children}</SidebarProvider>
+            </AuthProvider>
         </QueryClientProvider>
     );
 };

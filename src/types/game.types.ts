@@ -1,5 +1,8 @@
 export type GameStatus = 'upcoming' | 'live' | 'finished';
-export type GameName = 'CS2' | 'League of Legends' | 'Dota 2' | 'Valorant' | 'Overwatch' | 'Call of Duty';
+
+export const GAME_NAMES = ['CS2', 'League of Legends', 'Dota 2', 'Valorant', 'Overwatch', 'Call of Duty'] as const;
+
+export type GameName = (typeof GAME_NAMES)[number];
 
 export type Team = {
     id: string;

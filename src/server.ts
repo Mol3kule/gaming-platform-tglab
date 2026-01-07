@@ -4,7 +4,7 @@ import next from 'next';
 import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
-import { Player } from './types/player.types';
+import { Currency, Player } from './types/player.types';
 import { Game } from './types/game.types';
 import { generateToken, extractTokenFromHeader } from './lib/auth/jwt';
 import { hashPassword, comparePassword } from './lib/auth/password';
@@ -32,6 +32,11 @@ app.prepare().then(async () => {
             transactions: [],
         },
     ];
+
+    const currencyRates: Record<Currency, number> = {
+        EUR: 1,
+        USD: 0.86,
+    };
 
     const games = GamesData;
 
@@ -104,7 +109,7 @@ app.prepare().then(async () => {
     server.post('/api/bet', authMiddleware, (req: AuthRequest, res) => {
         const { amount } = req.body;
 
-        const player = players.find((player) => player.id === req.user?.userId);
+        const player = players.find((player) => player.accessToken === req.user?.userId);
 
         if (!player) return res.status(401).json({ message: 'auth.errors.invalidToken' });
 
@@ -233,13 +238,16 @@ app.prepare().then(async () => {
         });
     });
 
-    server.get('/api/games', (req, res) => {
-        const { type, page, limit } = req.query;
+    server.get('/api/games', authMiddleware, (req, res) => {
+        const { type, page, limit, status } = req.query;
 
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
         const total = games.length;
-        const data = games.slice((Number(page) - 1) * Number(limit), Number(page) * Number(limit));
+        const data = games
+            .filter((game) => (type ? game.game === type : true))
+            .filter((game) => (status ? game.status === status : true))
+            .slice((Number(page) - 1) * Number(limit), Number(page) * Number(limit));
 
         res.json({
             data,
@@ -249,7 +257,7 @@ app.prepare().then(async () => {
         });
     });
 
-    server.get('/api/games/:id', (req, res) => {
+    server.get('/api/games/:id', authMiddleware, (req, res) => {
         const { id } = req.params;
         const game = games.find((g) => g.id === id);
 
@@ -263,11 +271,7 @@ app.prepare().then(async () => {
     server.get('/api/me', authMiddleware, (req: AuthRequest, res) => {
         const player = players.find(
             (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
-        );
-
-        if (!player) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
+        )!;
 
         res.json({
             id: player.id,

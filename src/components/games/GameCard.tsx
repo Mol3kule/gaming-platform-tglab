@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Game } from '@/types/game.types';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 type GameCardProps = {
     game: Game;
@@ -12,6 +13,8 @@ type GameCardProps = {
 };
 
 const StatusBadge = ({ status }: { status: Game['status'] }) => {
+    const t = useTranslations('games.statusOptions');
+
     const statusStyles = {
         upcoming: 'bg-blue-100 text-blue-800',
         live: 'bg-red-100 text-red-800 animate-pulse',
@@ -20,7 +23,7 @@ const StatusBadge = ({ status }: { status: Game['status'] }) => {
 
     return (
         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusStyles[status]}`}>
-            {status.toUpperCase()}
+            {t(status).toUpperCase()}
         </span>
     );
 };
@@ -77,7 +80,7 @@ export const GameCard = ({ game, onPlaceBet }: GameCardProps) => {
 
     return (
         <Card className="p-6 hover:shadow-lg transition-shadow select-none cursor-pointer" onClick={handleCardClick}>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 h-full">
                 <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-1">
                         <span className="text-sm font-bold text-primary">{game.game}</span>
@@ -97,27 +100,31 @@ export const GameCard = ({ game, onPlaceBet }: GameCardProps) => {
                     <TeamDisplay name={game.awayTeam.name} logo={game.awayTeam.logo} />
                 </div>
 
-                <div className={`grid gap-2 mt-4 ${game.odds.draw !== undefined ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                    <OddsButton
-                        odds={game.odds.homeWin}
-                        label={game.homeTeam.name}
-                        onClick={(e) => handleBetClick(e, 'homeWin')}
-                        disabled={isFinished}
-                    />
-                    {game.odds.draw !== undefined && (
+                <div className={`flex flex-1 items-end`}>
+                    <div
+                        className={`w-full grid gap-2 ${game.odds.draw !== undefined ? 'grid-cols-3' : 'grid-cols-2'}`}
+                    >
                         <OddsButton
-                            odds={game.odds.draw}
-                            label="Draw"
-                            onClick={(e) => handleBetClick(e, 'draw')}
+                            odds={game.odds.homeWin}
+                            label={game.homeTeam.name}
+                            onClick={(e) => handleBetClick(e, 'homeWin')}
                             disabled={isFinished}
                         />
-                    )}
-                    <OddsButton
-                        odds={game.odds.awayWin}
-                        label={game.awayTeam.name}
-                        onClick={(e) => handleBetClick(e, 'awayWin')}
-                        disabled={isFinished}
-                    />
+                        {game.odds.draw !== undefined && (
+                            <OddsButton
+                                odds={game.odds.draw}
+                                label="Draw"
+                                onClick={(e) => handleBetClick(e, 'draw')}
+                                disabled={isFinished}
+                            />
+                        )}
+                        <OddsButton
+                            odds={game.odds.awayWin}
+                            label={game.awayTeam.name}
+                            onClick={(e) => handleBetClick(e, 'awayWin')}
+                            disabled={isFinished}
+                        />
+                    </div>
                 </div>
             </div>
         </Card>

@@ -15,5 +15,5 @@ export default async function GameDetailPage({ params }: Props) {
 
     const { gameId } = await params;
 
-    return <GameDetail gameId={gameId} userName={user.name} />;
+    return <GameDetail gameId={gameId} user={user} />;
 }

@@ -55,5 +55,48 @@
             "title": "Additional",
             "transactions": "History"
         }
+    },
+    "games": {
+        "title": "Welcome back, {username}!",
+        "description": "Place your bets on esports tournaments and matches",
+        "filter": {
+            "title": "Filter Games",
+            "gameNameLabel": "Game Name",
+            "gameNamePlaceholder": "Search by game name...",
+            "statusLabel": "Game Status",
+            "allStatus": "All Games",
+            "live": "Live",
+            "upcoming": "Upcoming",
+            "apply": "Apply Filters",
+            "reset": "Reset"
+        },
+        "statusOptions": {
+            "live": "Live",
+            "upcoming": "Upcoming",
+            "finished": "Finished"
+        },
+        "detail": {
+            "status": {
+                "upcoming": "UPCOMING",
+                "live": "LIVE",
+                "finished": "FINISHED"
+            },
+            "odds": "Odds",
+            "placeYourBet": "Place Your Bet",
+            "selectWinner": "Select Winner",
+            "draw": "Draw",
+            "betAmount": "Bet Amount {currency}",
+            "enterAmount": "Enter amount",
+            "potentialWinnings": "Potential Winnings:",
+            "placingBet": "Placing Bet...",
+            "confirmBet": "Confirm Bet",
+            "bettingClosed": "This game has finished. Betting is closed."
+        },
+        "emptyState": {
+            "noMatches": "No Esports Matches Available",
+            "checkBackLater": "Check back later for upcoming tournaments",
+            "notFound": "No game found"
+        },
+        "backToGames": "Back to Games"
     }
 }

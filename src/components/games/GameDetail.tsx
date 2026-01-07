@@ -9,13 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
+import { useTranslations, _Translator } from 'next-intl';
+import { SafeUser } from '@/types/player.types';
 
 type GameDetailProps = {
     gameId: string;
-    userName: string;
+    user: SafeUser;
 };
 
-const StatusBadge = ({ status }: { status: Game['status'] }) => {
+const StatusBadge = ({ status, t }: { status: Game['status']; t: _Translator }) => {
     const statusStyles = {
         upcoming: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
         live: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 animate-pulse',
@@ -24,7 +26,7 @@ const StatusBadge = ({ status }: { status: Game['status'] }) => {
 
     return (
         <span className={`px-3 py-1.5 text-sm font-bold rounded-full ${statusStyles[status]}`}>
-            {status.toUpperCase()}
+            {t(`detail.status.${status}`)}
         </span>
     );
 };
@@ -36,6 +38,7 @@ const BettingOption = ({
     onSelect,
     isSelected,
     disabled,
+    t,
 }: {
     teamName: string;
     odds: number;
@@ -43,6 +46,7 @@ const BettingOption = ({
     onSelect: (betType: 'homeWin' | 'draw' | 'awayWin') => void;
     isSelected: boolean;
     disabled: boolean;
+    t: _Translator;
 }) => (
     <Card
         className={`p-6 cursor-pointer transition-all border-2 ${
@@ -53,19 +57,21 @@ const BettingOption = ({
         <div className="flex flex-col gap-3 items-center">
             <span className="font-bold text-lg">{teamName}</span>
             <div className="flex flex-col items-center gap-1">
-                <span className="text-xs text-muted-foreground">Odds</span>
+                <span className="text-xs text-muted-foreground">{t('detail.odds')}</span>
                 <span className="text-3xl font-black text-primary">{odds.toFixed(2)}</span>
             </div>
         </div>
     </Card>
 );
 
-export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
+export const GameDetail = ({ gameId, user }: GameDetailProps) => {
     const router = useRouter();
     const { data: game, isLoading } = useGetGameById(gameId);
     const [selectedBet, setSelectedBet] = useState<'homeWin' | 'draw' | 'awayWin' | null>(null);
     const [betAmount, setBetAmount] = useState<string>('');
     const [isPlacingBet, setIsPlacingBet] = useState(false);
+
+    const t = useTranslations('games');
 
     const handlePlaceBet = async () => {
         if (!selectedBet || !betAmount || parseFloat(betAmount) <= 0) {
@@ -97,20 +103,19 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
         );
     }
 
-    if (!game) {
+    if (!game || !game.data) {
         return (
             <div className="container mx-auto py-8 px-4 max-w-4xl">
                 <Card className="p-12 text-center">
-                    <h2 className="text-2xl font-bold mb-4">Game Not Found</h2>
-                    <p className="text-muted-foreground mb-6">The game youre looking for doesnt exist.</p>
-                    <Button onClick={() => router.push('/games')}>Back to Games</Button>
+                    <h2 className="text-2xl font-bold mb-4">{t('emptyState.notFound')}</h2>
+                    <Button onClick={() => router.push('/games')}>{t('emptyState.backToGames')}</Button>
                 </Card>
             </div>
         );
     }
 
-    const isFinished = game.status === 'finished';
-    const formattedTime = new Date(game.startTime).toLocaleString('en-US', {
+    const isFinished = game.data.status === 'finished';
+    const formattedTime = new Date(game.data.startTime).toLocaleString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
@@ -119,36 +124,38 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
     });
 
     const potentialWinnings =
-        selectedBet && betAmount ? (parseFloat(betAmount) * game.odds[selectedBet]!).toFixed(2) : '0.00';
+        selectedBet && betAmount ? (parseFloat(betAmount) * game.data.odds[selectedBet]!).toFixed(2) : '0.00';
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-4xl">
-            <Button variant="ghost" onClick={() => router.push('/games')} className="mb-6">
-                ← Back to Games
+            <Button variant="ghost" onClick={() => router.back()} className="mb-6 cursor-pointer">
+                ← {t('backToGames')}
             </Button>
 
             <div className="space-y-8">
                 <Card className="p-8">
                     <div className="flex justify-between items-start mb-6">
                         <div className="space-y-2">
-                            <h1 className="text-3xl font-black">{game.game}</h1>
-                            {game.tournament && <p className="text-lg text-muted-foreground">{game.tournament}</p>}
+                            <h1 className="text-3xl font-black">{game.data.game}</h1>
+                            {game.data.tournament && (
+                                <p className="text-lg text-muted-foreground">{game.data.tournament}</p>
+                            )}
                             <p className="text-sm text-muted-foreground">{formattedTime}</p>
                         </div>
-                        <StatusBadge status={game.status} />
+                        <StatusBadge status={game.data.status} t={t} />
                     </div>
 
                     <div className="flex items-center justify-around gap-8 py-8">
                         <div className="flex flex-col items-center gap-4">
                             <div className="w-32 h-32 relative bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
                                 <Image
-                                    src={game.homeTeam.logo}
-                                    alt={game.homeTeam.name}
+                                    src={game.data.homeTeam.logo}
+                                    alt={game.data.homeTeam.name}
                                     fill
                                     className="object-cover"
                                 />
                             </div>
-                            <h2 className="text-2xl font-bold text-center">{game.homeTeam.name}</h2>
+                            <h2 className="text-2xl font-bold text-center">{game.data.homeTeam.name}</h2>
                         </div>
 
                         <div className="text-4xl font-black text-muted-foreground">VS</div>
@@ -156,61 +163,64 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
                         <div className="flex flex-col items-center gap-4">
                             <div className="w-32 h-32 relative bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
                                 <Image
-                                    src={game.awayTeam.logo}
-                                    alt={game.awayTeam.name}
+                                    src={game.data.awayTeam.logo}
+                                    alt={game.data.awayTeam.name}
                                     fill
                                     className="object-cover"
                                 />
                             </div>
-                            <h2 className="text-2xl font-bold text-center">{game.awayTeam.name}</h2>
+                            <h2 className="text-2xl font-bold text-center">{game.data.awayTeam.name}</h2>
                         </div>
                     </div>
                 </Card>
 
                 {!isFinished && (
                     <Card className="p-8">
-                        <h2 className="text-2xl font-bold mb-6">Place Your Bet</h2>
+                        <h2 className="text-2xl font-bold mb-6">{t('detail.placeYourBet')}</h2>
 
                         <div className="space-y-6">
                             <div>
-                                <Label className="text-base mb-3 block">Select Winner</Label>
+                                <Label className="text-base mb-3 block">{t('detail.selectWinner')}</Label>
                                 <div
                                     className={`grid gap-4 ${
-                                        game.odds.draw !== undefined ? 'grid-cols-3' : 'grid-cols-2'
+                                        game.data.odds.draw !== undefined ? 'grid-cols-3' : 'grid-cols-2'
                                     }`}
                                 >
                                     <BettingOption
-                                        teamName={game.homeTeam.name}
-                                        odds={game.odds.homeWin}
+                                        teamName={game.data.homeTeam.name}
+                                        odds={game.data.odds.homeWin}
                                         betType="homeWin"
                                         onSelect={setSelectedBet}
                                         isSelected={selectedBet === 'homeWin'}
                                         disabled={isFinished}
+                                        t={t}
                                     />
-                                    {game.odds.draw !== undefined && (
+                                    {game.data.odds.draw !== undefined && (
                                         <BettingOption
-                                            teamName="Draw"
-                                            odds={game.odds.draw}
+                                            teamName={t('detail.draw')}
+                                            odds={game.data.odds.draw}
                                             betType="draw"
                                             onSelect={setSelectedBet}
                                             isSelected={selectedBet === 'draw'}
                                             disabled={isFinished}
+                                            t={t}
                                         />
                                     )}
                                     <BettingOption
-                                        teamName={game.awayTeam.name}
-                                        odds={game.odds.awayWin}
+                                        teamName={game.data.awayTeam.name}
+                                        odds={game.data.odds.awayWin}
                                         betType="awayWin"
                                         onSelect={setSelectedBet}
                                         isSelected={selectedBet === 'awayWin'}
                                         disabled={isFinished}
+                                        t={t}
                                     />
                                 </div>
                             </div>
 
                             <div>
                                 <Label htmlFor="betAmount" className="text-base mb-2 block">
-                                    Bet Amount ($)
+                                    {t('detail.betAmount', { currency: user.currency })}
                                 </Label>
                                 <Input
                                     id="betAmount"
@@ -219,7 +229,7 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
                                     step="0.01"
                                     value={betAmount}
                                     onChange={(e) => setBetAmount(e.target.value)}
-                                    placeholder="Enter amount"
+                                    placeholder={t('detail.enterAmount')}
                                     className="text-lg"
                                 />
                             </div>
@@ -227,7 +237,7 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
                             {selectedBet && betAmount && parseFloat(betAmount) > 0 && (
                                 <Card className="p-4 bg-accent">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-medium">Potential Winnings:</span>
+                                        <span className="text-sm font-medium">{t('detail.potentialWinnings')}</span>
                                         <span className="text-2xl font-bold text-primary">${potentialWinnings}</span>
                                     </div>
                                 </Card>
@@ -239,7 +249,7 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
                                 className="w-full text-lg py-6"
                                 size="lg"
                             >
-                                {isPlacingBet ? 'Placing Bet...' : 'Confirm Bet'}
+                                {isPlacingBet ? t('detail.placingBet') : t('detail.confirmBet')}
                             </Button>
                         </div>
                     </Card>
@@ -247,9 +257,7 @@ export const GameDetail = ({ gameId, userName }: GameDetailProps) => {
 
                 {isFinished && (
                     <Card className="p-8 text-center">
-                        <h2 className="text-xl font-bold text-muted-foreground">
-                            This game has finished. Betting is closed.
-                        </h2>
+                        <h2 className="text-xl font-bold text-muted-foreground">{t('detail.bettingClosed')}</h2>
                     </Card>
                 )}
             </div>

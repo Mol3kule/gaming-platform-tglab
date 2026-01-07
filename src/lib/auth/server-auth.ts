@@ -9,6 +9,23 @@ import { cache } from 'react';
  * Use in Server Components or Server Actions
  */
 export const getAuthUser = cache(async () => {
+    const token = await getValidServerToken();
+
+    if (!token) {
+        return null;
+    }
+
+    // Get user data from API
+    const user = await getServerUser(token);
+
+    return user;
+});
+
+/**
+ * Get valid JWT token on server-side.
+ * Returns null if token is invalid
+ */
+export const getValidServerToken = async () => {
     const token = await getServerToken();
 
     if (!token) {
@@ -22,11 +39,8 @@ export const getAuthUser = cache(async () => {
         return null;
     }
 
-    // Get user data from cookie
-    const user = await getServerUser(token);
-
-    return user;
-});
+    return token;
+};
 
 /**
  * Require authentication on server-side

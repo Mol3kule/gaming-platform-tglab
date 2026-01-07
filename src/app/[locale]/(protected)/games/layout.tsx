@@ -2,7 +2,6 @@ import { getTranslations } from 'next-intl/server';
 import { i18nConfig } from '@/i18n/config';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { Header } from '@/components/header';
 
@@ -34,12 +33,12 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
 
 export default async function GamesLayout({ children }: Readonly<Props>) {
     return (
-        <SidebarProvider>
+        <>
             <AppSidebar />
-            <main className="w-full">
+            <main className="flex flex-col w-full">
                 <Header />
                 {children}
             </main>
-        </SidebarProvider>
+        </>
     );
 }
