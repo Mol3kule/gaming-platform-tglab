@@ -14,7 +14,9 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     const [isSocketConnected, setIsSocketConnected] = useState(false);
 
     const socket = useMemo(() => {
-        return io(process.env.SOCKET_URL!);
+        return io(process.env.SOCKET_URL!, {
+            withCredentials: true,
+        });
     }, []);
 
     useEffect(() => {

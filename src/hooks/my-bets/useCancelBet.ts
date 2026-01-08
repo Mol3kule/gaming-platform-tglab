@@ -26,7 +26,6 @@ export const useCancelBet = () => {
             return response.data;
         },
         onSuccess: () => {
-            toast.success('Bet cancelled successfully');
             queryClient.invalidateQueries({ queryKey: ['my-bets'] });
         },
         onError: (error: AxiosError<{ message: string }>) => {

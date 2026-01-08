@@ -32,6 +32,7 @@ app.prepare().then(async () => {
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmIzMjU1My01ZDMyLTQxMTMtYTI0YS04MmI4NDkzODMwODEiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwibmFtZSI6IlRlc3QiLCJpYXQiOjE3Njc3MzA0MTQsImV4cCI6MTc2ODMzNTIxNCwiaXNzIjoiZ2FtaW5nLXBsYXRmb3JtIn0.aP8CqzOcP_UNElyVNmxWIy7XFOpRHhGaGhZPKh4Y4H8',
             bets: [],
             transactions: [],
+            socketId: null,
         },
     ];
 
@@ -42,7 +43,42 @@ app.prepare().then(async () => {
     const io = new SocketIOServer(httpServer, {
         cors: {
             origin: [process.env.SOCKET_URL!],
+            credentials: true,
         },
+    });
+
+    io.on('connection', (socket: Socket) => {
+        const cookies = socket.handshake.headers.cookie;
+        let authToken: string | null = null;
+
+        if (cookies) {
+            const cookieArray = cookies.split(';').map((cookie) => cookie.trim());
+            const authCookie = cookieArray.find((cookie) => cookie.startsWith('auth_token='));
+            if (authCookie) {
+                authToken = authCookie.split('=')[1];
+            }
+        }
+
+        // Find player by token and store socket ID
+        if (authToken) {
+            const player = players.find((p) => p.accessToken === authToken);
+            if (player) {
+                player.socketId = socket.id;
+                console.log(`Player ${player.name} connected with socket ID: ${socket.id}`);
+            }
+        }
+
+        socket.on('disconnect', () => {
+            // Remove socket ID from player on disconnect
+            if (authToken) {
+                const player = players.find((p) => p.accessToken === authToken);
+                if (player) {
+                    player.socketId = null;
+                    console.log(`Player ${player.name} disconnected`);
+                }
+            }
+            console.log(socket.id, 'disconnected from socket.io server');
+        });
     });
 
     server.use(express.json());
@@ -66,6 +102,7 @@ app.prepare().then(async () => {
             accessToken: null,
             bets: [],
             transactions: [],
+            socketId: null,
         });
 
         res.json({
@@ -205,6 +242,12 @@ app.prepare().then(async () => {
 
             game.status = 'finished';
 
+            if (player.socketId) {
+                const socket = io.sockets.sockets.get(player.socketId);
+                socket?.emit('updateBalance', { balance: player.balance });
+                console.log('Emitting updateBalance to socket ID 1:', player.socketId);
+            }
+
             res.json({
                 transactionId: betTransactionId,
                 currency: player.currency,
@@ -228,6 +271,12 @@ app.prepare().then(async () => {
                 winAmount: null,
                 gameId,
             });
+
+            if (player.socketId) {
+                const socket = io.sockets.sockets.get(player.socketId);
+                socket?.emit('updateBalance', { balance: player.balance });
+                console.log('Emitting updateBalance to socket ID 2:', player.socketId);
+            }
 
             res.json({
                 transactionId: betTransactionId,
@@ -302,6 +351,11 @@ app.prepare().then(async () => {
             type: 'cancel',
             createdAt: Date.now(),
         });
+
+        // Emit balance update to the connected socket
+        if (player.socketId) {
+            io.to(player.socketId).emit('updateBalance', { balance: player.balance });
+        }
 
         res.json({
             transactionId: id,

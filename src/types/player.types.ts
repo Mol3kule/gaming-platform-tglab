@@ -14,6 +14,7 @@ export type Player = {
     accessToken: string | null;
     bets: Bet[];
     transactions: Transaction[];
+    socketId: string | null;
 };
 
 export type SafeUser = Expand<Omit<Player, 'password' | 'accessToken' | 'bets' | 'transactions' | 'email'>>;
