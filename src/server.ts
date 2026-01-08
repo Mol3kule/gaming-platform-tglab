@@ -364,7 +364,6 @@ app.prepare().then(async () => {
     server.get('/api/my-transactions', authMiddleware, (req, res) => {
         const { id, type, page, limit } = req.query;
 
-        console.log(`Transaction type: ${type}`);
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
         const player = players.find(

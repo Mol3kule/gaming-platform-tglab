@@ -96,8 +96,8 @@ export const TransactionsFilter = ({ isMobile = false }: TransactionsFilterProps
                         {t('filter.title')}
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-80">
-                    <SheetHeader>
+                <SheetContent side="right" className="w-80 px-4">
+                    <SheetHeader className="p-0 mt-3">
                         <SheetTitle>{t('filter.title')}</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6">
