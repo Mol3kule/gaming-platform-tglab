@@ -53,7 +53,8 @@
         },
         "additional": {
             "title": "Additional",
-            "transactions": "History"
+            "transactions": "Transactions",
+            "my-bets": "My Bets"
         }
     },
     "games": {
@@ -97,6 +98,51 @@
             "checkBackLater": "Check back later for upcoming tournaments",
             "notFound": "No game found"
         },
-        "backToGames": "Back to Games"
+        "backToGames": "Back to Games",
+        "betting": {
+            "insufficientFunds": "Insufficient funds for betting",
+            "betWon": "Your bet was successful! You won {amount} {currency}.",
+            "betLost": "Your bet was placed, but unfortunately you lost this time.",
+            "minimumBet": "Minimum bet amount is 1 {currency}",
+            "invalidSelection": "Invalid bet selection",
+            "betError": "An error occurred while placing your bet. Please try again.",
+            "gameFinished": "This game has already finished. Betting is closed.",
+            "betPlaced": "Your bet of {amount} {currency} has been placed successfully.",
+            "pendingBetMessage": "Your bet has been placed and is pending until the game starts.",
+            "cancelBet": "Cancel Bet",
+            "canceling": "Canceling...",
+            "pendingBetExists": "You already have a pending bet for this game."
+        }
+    },
+    "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "transactions": {
+        "title": "Transaction History",
+        "description": "Review your past betting transactions",
+        "type": {
+            "win": "Win",
+            "cancel": "Cancel",
+            "bet": "Bet"
+        }
+    },
+    "my-bets": {
+        "title": "My Bets",
+        "description": "Overview of your placed bets and their statuses",
+        "status": {
+            "win": "Won",
+            "lost": "Lost",
+            "canceled": "Canceled",
+            "pending": "Pending"
+        }
+    },
+    "datatable": {
+        "id": "ID",
+        "status": "Status",
+        "amount": "Amount",
+        "type": "Type",
+        "win_amount": "Win Amount",
+        "actions": "Actions"
     }
 }

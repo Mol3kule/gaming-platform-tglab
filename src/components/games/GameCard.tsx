@@ -9,7 +9,6 @@ import { useTranslations } from 'next-intl';
 
 type GameCardProps = {
     game: Game;
-    onPlaceBet: (gameId: string, betType: 'homeWin' | 'draw' | 'awayWin') => void;
 };
 
 const StatusBadge = ({ status }: { status: Game['status'] }) => {
@@ -45,7 +44,7 @@ const OddsButton = ({
 }: {
     odds: number;
     label: string;
-    onClick: (e: React.MouseEvent) => void;
+    onClick?: (e: React.MouseEvent) => void;
     disabled: boolean;
 }) => (
     <Button
@@ -59,7 +58,7 @@ const OddsButton = ({
     </Button>
 );
 
-export const GameCard = ({ game, onPlaceBet }: GameCardProps) => {
+export const GameCard = ({ game }: GameCardProps) => {
     const router = useRouter();
     const isFinished = game.status === 'finished';
     const formattedTime = new Date(game.startTime).toLocaleString('en-US', {
@@ -71,11 +70,6 @@ export const GameCard = ({ game, onPlaceBet }: GameCardProps) => {
 
     const handleCardClick = () => {
         router.push(`/games/${game.id}`);
-    };
-
-    const handleBetClick = (e: React.MouseEvent, betType: 'homeWin' | 'draw' | 'awayWin') => {
-        e.stopPropagation();
-        onPlaceBet(game.id, betType);
     };
 
     return (
@@ -104,26 +98,11 @@ export const GameCard = ({ game, onPlaceBet }: GameCardProps) => {
                     <div
                         className={`w-full grid gap-2 ${game.odds.draw !== undefined ? 'grid-cols-3' : 'grid-cols-2'}`}
                     >
-                        <OddsButton
-                            odds={game.odds.homeWin}
-                            label={game.homeTeam.name}
-                            onClick={(e) => handleBetClick(e, 'homeWin')}
-                            disabled={isFinished}
-                        />
+                        <OddsButton odds={game.odds.homeWin} label={game.homeTeam.name} disabled={isFinished} />
                         {game.odds.draw !== undefined && (
-                            <OddsButton
-                                odds={game.odds.draw}
-                                label="Draw"
-                                onClick={(e) => handleBetClick(e, 'draw')}
-                                disabled={isFinished}
-                            />
+                            <OddsButton odds={game.odds.draw} label="Draw" disabled={isFinished} />
                         )}
-                        <OddsButton
-                            odds={game.odds.awayWin}
-                            label={game.awayTeam.name}
-                            onClick={(e) => handleBetClick(e, 'awayWin')}
-                            disabled={isFinished}
-                        />
+                        <OddsButton odds={game.odds.awayWin} label={game.awayTeam.name} disabled={isFinished} />
                     </div>
                 </div>
             </div>

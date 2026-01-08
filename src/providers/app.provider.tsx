@@ -2,6 +2,7 @@
 
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SocketContextProvider } from '@/contexts/SocketContext';
 import { SafeUser } from '@/types/player.types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
@@ -22,9 +23,11 @@ interface AppProviderProps {
 export const AppProvider = ({ children, user }: AppProviderProps) => {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider user={user}>
-                <SidebarProvider>{children}</SidebarProvider>
-            </AuthProvider>
+            <SocketContextProvider>
+                <AuthProvider user={user}>
+                    <SidebarProvider>{children}</SidebarProvider>
+                </AuthProvider>
+            </SocketContextProvider>
         </QueryClientProvider>
     );
 };

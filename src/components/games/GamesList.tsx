@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 
 type GamesListProps = {
     games: Game[];
-    onPlaceBet: (gameId: string, betType: 'homeWin' | 'draw' | 'awayWin') => void;
     isLoading?: boolean;
 };
 
@@ -30,7 +29,7 @@ const EmptyState = () => {
     );
 };
 
-export const GamesList = ({ games, onPlaceBet, isLoading = false }: GamesListProps) => {
+export const GamesList = ({ games, isLoading = false }: GamesListProps) => {
     if (isLoading) {
         return <LoadingState />;
     }
@@ -42,7 +41,7 @@ export const GamesList = ({ games, onPlaceBet, isLoading = false }: GamesListPro
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {games.map((game) => (
-                <GameCard key={game.id} game={game} onPlaceBet={onPlaceBet} />
+                <GameCard key={game.id} game={game} />
             ))}
         </div>
     );

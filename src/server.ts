@@ -4,11 +4,14 @@ import next from 'next';
 import express from 'express';
 import { createServer } from 'http';
 import { faker } from '@faker-js/faker';
-import { Currency, Player } from './types/player.types';
+import { Player } from './types/player.types';
 import { generateToken, extractTokenFromHeader } from './lib/auth/jwt';
 import { hashPassword, comparePassword } from './lib/auth/password';
 import { authMiddleware } from './middleware/auth.middleware';
 import { GamesData } from './lib/gamesData';
+import { Odds } from './types/game.types';
+
+import { Server as SocketIOServer, Socket } from 'socket.io';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -32,14 +35,15 @@ app.prepare().then(async () => {
         },
     ];
 
-    const currencyRates: Record<Currency, number> = {
-        EUR: 1,
-        USD: 0.86,
-    };
-
     const games = GamesData;
 
     const httpServer = createServer(server);
+
+    const io = new SocketIOServer(httpServer, {
+        cors: {
+            origin: [process.env.SOCKET_URL!],
+        },
+    });
 
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
@@ -106,52 +110,133 @@ app.prepare().then(async () => {
     });
 
     server.post('/api/bet', authMiddleware, (req, res) => {
-        const { amount } = req.body;
+        const { gameId, amount, homeOrAway }: { gameId: string; amount: number; homeOrAway: keyof Odds } = req.body;
 
         const player = players.find(
             (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
         )!;
 
-        if (player.balance < amount) return res.status(400).json({ message: 'Insufficient balance' });
+        if (player.balance < amount) return res.status(400).json({ message: 'betting.insufficientFunds' });
 
-        if (amount < 1) return res.status(400).json({ message: 'Minimum bet amount is 1' });
+        if (amount < 1) return res.status(400).json({ message: 'betting.minimumBet', currency: player.currency });
 
-        const isWin = Math.random() < 0.3;
-        const betTransactionId = faker.string.uuid();
+        const game = games.find((game) => game.id === gameId);
+
+        if (!game) return res.status(404).json({ message: 'emptyState.notFound' });
+
+        if (game.status === 'finished') return res.status(400).json({ message: 'betting.gameFinished' });
+
+        if (player.bets.find((bet) => bet.gameId === gameId && bet.status === 'pending')) {
+            return res.status(400).json({ message: 'betting.pendingBetExists' });
+        }
+
+        // Simulate game outcome with proper probabilities
+        const random = Math.random();
+        let gameOutcome: keyof Odds;
+
+        const oddValue = game.odds[homeOrAway];
+        if (oddValue === undefined) {
+            return res.status(400).json({ message: 'betting.invalidSelection' });
+        }
+
+        if (game.odds.draw !== undefined) {
+            // Three-way outcome (homeWin, draw, awayWin)
+            if (random < 0.33) {
+                gameOutcome = 'homeWin';
+            } else if (random < 0.66) {
+                gameOutcome = 'draw';
+            } else {
+                gameOutcome = 'awayWin';
+            }
+        } else {
+            // Two-way outcome (homeWin, awayWin)
+            gameOutcome = random < 0.5 ? 'homeWin' : 'awayWin';
+        }
 
         player.balance = player.balance - amount;
+        const betTransactionId = faker.string.uuid();
 
-        if (isWin) player.balance = player.balance + amount * 2;
+        if (game.status === 'live') {
+            const isWin = gameOutcome === homeOrAway;
 
-        player.transactions.push({
-            id: betTransactionId,
-            amount,
-            type: 'bet',
-            createdAt: Date.now(),
-        });
+            if (isWin) {
+                const winAmount = amount * oddValue;
+                player.balance = player.balance + winAmount;
 
-        if (isWin)
+                player.transactions.push({
+                    id: betTransactionId,
+                    amount,
+                    type: 'bet',
+                    createdAt: Date.now(),
+                });
+
+                player.transactions.push({
+                    id: faker.string.uuid(),
+                    amount: winAmount,
+                    type: 'win',
+                    createdAt: Date.now(),
+                });
+
+                player.bets.push({
+                    id: betTransactionId,
+                    amount,
+                    status: 'win',
+                    createdAt: Date.now(),
+                    winAmount,
+                    gameId,
+                });
+            } else {
+                player.transactions.push({
+                    id: betTransactionId,
+                    amount,
+                    type: 'bet',
+                    createdAt: Date.now(),
+                });
+
+                player.bets.push({
+                    id: betTransactionId,
+                    amount,
+                    status: 'lost',
+                    createdAt: Date.now(),
+                    winAmount: null,
+                    gameId,
+                });
+            }
+
+            game.status = 'finished';
+
+            res.json({
+                transactionId: betTransactionId,
+                currency: player.currency,
+                balance: player.balance,
+                winAmount: isWin ? amount * oddValue : null,
+                status: 'live',
+            });
+        } else if (game.status === 'upcoming') {
             player.transactions.push({
-                id: faker.string.uuid(),
-                amount: amount * 2,
-                type: 'win',
+                id: betTransactionId,
+                amount,
+                type: 'bet',
                 createdAt: Date.now(),
             });
 
-        player.bets.push({
-            id: betTransactionId,
-            amount,
-            status: isWin ? 'win' : 'lost',
-            createdAt: Date.now(),
-            winAmount: isWin ? amount * 2 : null,
-        });
+            player.bets.push({
+                id: betTransactionId,
+                amount,
+                status: 'pending',
+                createdAt: Date.now(),
+                winAmount: null,
+                gameId,
+            });
 
-        res.json({
-            transactionId: betTransactionId,
-            currency: 'EUR',
-            balance: player.balance,
-            winAmount: isWin ? amount * 2 : null,
-        });
+            res.json({
+                transactionId: betTransactionId,
+                currency: player.currency,
+                balance: player.balance,
+                winAmount: null,
+                status: 'upcoming',
+            });
+        }
     });
 
     server.get('/api/my-bets', authMiddleware, (req, res) => {
@@ -193,8 +278,20 @@ app.prepare().then(async () => {
 
         if (bet.status === 'canceled') return res.status(400).json({ message: 'Bet already canceled' });
 
-        if (bet.status === 'win' && player.balance < bet.amount)
-            return res.status(400).json({ message: 'Bet already completed' });
+        // Find the associated game
+        const game = games.find((game) => game.id === bet.gameId);
+
+        if (!game) return res.status(404).json({ message: 'Game not found' });
+
+        // Only allow cancellation if the game is still upcoming
+        if (game.status !== 'upcoming') {
+            return res.status(400).json({ message: 'Can only cancel bets for upcoming games' });
+        }
+
+        // Only allow cancellation of pending bets
+        if (bet.status !== 'pending') {
+            return res.status(400).json({ message: 'Cannot cancel completed bet' });
+        }
 
         player.balance += bet.amount;
         bet.status = 'canceled';

@@ -2,7 +2,7 @@ import { Expand } from './generic.types';
 
 export type Currency = 'EUR' | 'USD';
 export type TransactionType = 'win' | 'cancel' | 'bet';
-export type BetStatus = 'win' | 'lost' | 'canceled';
+export type BetStatus = 'win' | 'lost' | 'canceled' | 'pending';
 
 export type Player = {
     id: string;
@@ -29,5 +29,6 @@ export type Bet = Expand<
     {
         status: BetStatus;
         winAmount: number | null;
+        gameId: string;
     } & Omit<Transaction, 'type'>
 >;

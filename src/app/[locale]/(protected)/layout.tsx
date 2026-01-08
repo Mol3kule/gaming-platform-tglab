@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
     } satisfies Metadata;
 }
 
-export default async function GamesLayout({ children }: Readonly<Props>) {
+export default async function ProtectedLayout({ children }: Readonly<Props>) {
     return (
         <>
             <AppSidebar />

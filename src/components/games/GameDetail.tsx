@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Game } from '@/types/game.types';
 import { useGetGameById } from '@/hooks/games/useGetGameById';
@@ -11,6 +11,11 @@ import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { useTranslations, _Translator } from 'next-intl';
 import { SafeUser } from '@/types/player.types';
+import { useGameBet } from '@/hooks/games/useGameBet';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCancelBet } from '@/hooks/my-bets/useCancelBet';
+import { useGetMyBets } from '@/hooks/my-bets/useGetMyBets';
 
 type GameDetailProps = {
     gameId: string;
@@ -69,26 +74,75 @@ export const GameDetail = ({ gameId, user }: GameDetailProps) => {
     const { data: game, isLoading } = useGetGameById(gameId);
     const [selectedBet, setSelectedBet] = useState<'homeWin' | 'draw' | 'awayWin' | null>(null);
     const [betAmount, setBetAmount] = useState<string>('');
-    const [isPlacingBet, setIsPlacingBet] = useState(false);
+    const [placedBetId, setPlacedBetId] = useState<string | null>(null);
 
     const t = useTranslations('games');
+    const queryClient = useQueryClient();
+
+    const { mutateAsync: mutateGameBetAsync, isPending: isPlacingBet } = useGameBet();
+    const { mutate: cancelBet, isPending: isCancelingBet } = useCancelBet();
+    const { data: myBets } = useGetMyBets({ page: 1, limit: 100, status: 'pending' });
+
+    // Check for pending bets for this game on mount and when bets change
+    useEffect(() => {
+        if (myBets?.data?.data) {
+            const pendingBet = myBets.data.data.find((bet) => bet.gameId === gameId && bet.status === 'pending');
+            if (pendingBet) {
+                setPlacedBetId(pendingBet.id);
+            }
+        }
+    }, [myBets, gameId]);
 
     const handlePlaceBet = async () => {
-        if (!selectedBet || !betAmount || parseFloat(betAmount) <= 0) {
+        if (!selectedBet || !betAmount || parseFloat(betAmount) < 1) {
             return;
         }
 
-        setIsPlacingBet(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        console.log('Bet placed:', {
+        const response = await mutateGameBetAsync({
             gameId,
-            betType: selectedBet,
             amount: parseFloat(betAmount),
+            homeOrAway: selectedBet,
         });
 
-        setIsPlacingBet(false);
-        router.push('/games');
+        if (!response) {
+            toast.error(t('betting.betError'));
+            return;
+        }
+
+        if (response.data.status === 'live' && response.data.winAmount !== null) {
+            toast.success(t('betting.betWon', { amount: response.data.winAmount, currency: user.currency }));
+            setPlacedBetId(null);
+        } else if (response.data.status === 'live' && response.data.winAmount === null) {
+            toast.error(t('betting.betLost'));
+            setPlacedBetId(null);
+        } else {
+            toast.success(t('betting.betPlaced', { amount: betAmount, currency: user.currency }));
+            setPlacedBetId(response.data.transactionId);
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['getGameById', gameId] });
+        await queryClient.invalidateQueries({ queryKey: ['getGames'] });
+    };
+
+    const handleCancelBet = () => {
+        if (!placedBetId) return;
+
+        cancelBet(placedBetId, {
+            onSuccess: () => {
+                setPlacedBetId(null);
+                setBetAmount('');
+                setSelectedBet(null);
+                queryClient.invalidateQueries({ queryKey: ['getGameById', gameId] });
+            },
+        });
+    };
+
+    const handleBetAmountChange = (value: number) => {
+        if (value > user.balance) {
+            setBetAmount(user.balance.toString());
+        } else {
+            setBetAmount(value.toString());
+        }
     };
 
     if (isLoading) {
@@ -225,32 +279,59 @@ export const GameDetail = ({ gameId, user }: GameDetailProps) => {
                                 <Input
                                     id="betAmount"
                                     type="number"
-                                    min="0"
-                                    step="0.01"
+                                    min="1"
+                                    max={user.balance}
+                                    step="1"
                                     value={betAmount}
-                                    onChange={(e) => setBetAmount(e.target.value)}
+                                    onChange={(e) => handleBetAmountChange(Number(e.target.value))}
                                     placeholder={t('detail.enterAmount')}
                                     className="text-lg"
                                 />
                             </div>
 
-                            {selectedBet && betAmount && parseFloat(betAmount) > 0 && (
+                            {selectedBet && betAmount && parseFloat(betAmount) >= 1 && (
                                 <Card className="p-4 bg-accent">
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-medium">{t('detail.potentialWinnings')}</span>
-                                        <span className="text-2xl font-bold text-primary">${potentialWinnings}</span>
+                                        <span className="text-2xl font-bold text-primary">
+                                            {potentialWinnings} {user.currency}
+                                        </span>
                                     </div>
                                 </Card>
                             )}
 
                             <Button
                                 onClick={handlePlaceBet}
-                                disabled={!selectedBet || !betAmount || parseFloat(betAmount) <= 0 || isPlacingBet}
+                                disabled={
+                                    !selectedBet ||
+                                    !betAmount ||
+                                    parseFloat(betAmount) < 1 ||
+                                    isPlacingBet ||
+                                    !!placedBetId
+                                }
                                 className="w-full text-lg py-6"
                                 size="lg"
                             >
                                 {isPlacingBet ? t('detail.placingBet') : t('detail.confirmBet')}
                             </Button>
+
+                            {placedBetId && game.data.status === 'upcoming' && (
+                                <Card className="p-4 bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
+                                    <div className="space-y-3">
+                                        <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                                            {t('betting.pendingBetMessage')}
+                                        </p>
+                                        <Button
+                                            onClick={handleCancelBet}
+                                            disabled={isCancelingBet}
+                                            variant="destructive"
+                                            className="w-full"
+                                        >
+                                            {isCancelingBet ? t('betting.canceling') : t('betting.cancelBet')}
+                                        </Button>
+                                    </div>
+                                </Card>
+                            )}
                         </div>
                     </Card>
                 )}

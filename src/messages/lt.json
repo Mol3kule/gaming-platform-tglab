@@ -53,7 +53,8 @@
         },
         "additional": {
             "title": "Papildoma",
-            "transactions": "Istorija"
+            "transactions": "Transakcijos",
+            "my-bets": "Mano statymai"
         }
     },
     "games": {
@@ -85,7 +86,7 @@
             "placeYourBet": "Jūsų statymas",
             "selectWinner": "Pasirinkite nugalėtoją",
             "draw": "Lygiosios",
-            "betAmount": "Lažybos suma {currency}",
+            "betAmount": "Statymo suma {currency}",
             "enterAmount": "Įveskite sumą",
             "potentialWinnings": "Galimas laimėjimas:",
             "placingBet": "Vyksta statymas...",
@@ -97,6 +98,51 @@
             "checkBackLater": "Patikrinkite vėliau dėl būsimų turnyrų",
             "notFound": "Žaidimas nerastas"
         },
-        "backToGames": "Grįžti į žaidimus"
+        "backToGames": "Grįžti į žaidimus",
+        "betting": {
+            "insufficientFunds": "Nepakanka lėšų statymui",
+            "betWon": "Jūsų statymas buvo sėkmingas! Jūs laimėjote {amount} {currency}.",
+            "betLost": "Jūsų statymas buvo priimtas, tačiau, deja, šį kartą pralaimėjote.",
+            "minimumBet": "Minimali statymo suma yra 1 {currency}",
+            "invalidSelection": "Neteisingas statymo pasirinkimas",
+            "betError": "Įvyko klaida pateikiant jūsų statymą. Bandykite dar kartą.",
+            "gameFinished": "Šis žaidimas jau pasibaigė. Statymai uždaryti.",
+            "betPlaced": "Jūsų statymas {amount} {currency} buvo sėkmingai pateiktas.",
+            "pendingBetMessage": "Jūsų statymas buvo pateiktas ir laukia, kol žaidimas prasidės.",
+            "cancelBet": "Atšaukti statymą",
+            "canceling": "Atšaukiama...",
+            "pendingBetExists": "Jūs jau turite laukiantį statymą šiam žaidimui."
+        }
+    },
+    "pagination": {
+        "previous": "Atgal",
+        "next": "Kitas"
+    },
+    "transactions": {
+        "title": "Transakcijų istorija",
+        "description": "Peržiūrėkite savo transakcijų istoriją",
+        "type": {
+            "win": "Laimėjimas",
+            "cancel": "Atšaukimas",
+            "bet": "Statymas"
+        }
+    },
+    "my-bets": {
+        "title": "Mano statymai",
+        "description": "Jūsų pateiktų statymų apžvalga ir jų būsenos",
+        "status": {
+            "win": "Laimėta",
+            "lost": "Pralaimėta",
+            "canceled": "Atšaukta",
+            "pending": "Laukiama"
+        }
+    },
+    "datatable": {
+        "id": "ID",
+        "status": "Būsena",
+        "amount": "Suma",
+        "type": "Tipas",
+        "win_amount": "Laimėjimo suma",
+        "actions": "Veiksmai"
     }
 }

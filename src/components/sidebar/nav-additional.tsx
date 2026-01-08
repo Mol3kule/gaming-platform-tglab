@@ -27,6 +27,14 @@ export function NavAdditional() {
                         </SidebarMenuButton>
                     </Link>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <Link href="/my-bets">
+                        <SidebarMenuButton className="cursor-pointer">
+                            <History />
+                            {t('additional.my-bets')}
+                        </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
             </SidebarMenu>
         </SidebarGroup>
     );
