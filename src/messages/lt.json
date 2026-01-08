@@ -150,6 +150,10 @@
             "allStatus": "Visos būsenos",
             "apply": "Pritaikyti filtrus",
             "reset": "Atstatyti filtrus"
+        },
+        "actions": {
+            "cancelBet": "Atšaukti statymą",
+            "cancelling": "Atšaukiama..."
         }
     },
     "datatable": {

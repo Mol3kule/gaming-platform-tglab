@@ -150,6 +150,10 @@
             "allStatus": "All Statuses",
             "apply": "Apply Filters",
             "reset": "Reset Filters"
+        },
+        "actions": {
+            "cancelBet": "Cancel Bet",
+            "cancelling": "Cancelling..."
         }
     },
     "datatable": {

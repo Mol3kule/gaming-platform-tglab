@@ -49,6 +49,7 @@ export const myBetColumns: ColumnDef<Bet>[] = [
         cell: ({ row }) => {
             const bet = row.original;
             const { mutate: cancelBet, isPending } = useCancelBet();
+            const t = useTranslations('my-bets.actions');
 
             if (bet.status !== 'pending') {
                 return null;
@@ -56,7 +57,7 @@ export const myBetColumns: ColumnDef<Bet>[] = [
 
             return (
                 <Button variant="destructive" size="sm" onClick={() => cancelBet(bet.id)} disabled={isPending}>
-                    {isPending ? 'Canceling...' : 'Cancel'}
+                    {isPending ? t('cancelling') : t('cancelBet')}
                 </Button>
             );
         },
