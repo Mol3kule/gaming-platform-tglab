@@ -125,6 +125,13 @@
             "win": "Laimėjimas",
             "cancel": "Atšaukimas",
             "bet": "Statymas"
+        },
+        "filter": {
+            "title": "Filtruoti transakcijas",
+            "typeLabel": "Transakcijos tipas",
+            "allTypes": "Visi tipai",
+            "apply": "Pritaikyti filtrus",
+            "reset": "Atstatyti filtrus"
         }
     },
     "my-bets": {
@@ -135,6 +142,13 @@
             "lost": "Pralaimėta",
             "canceled": "Atšaukta",
             "pending": "Laukiama"
+        },
+        "filter": {
+            "title": "Filtruoti statymus",
+            "statusLabel": "Statymo būsena",
+            "allStatus": "Visos būsenos",
+            "apply": "Pritaikyti filtrus",
+            "reset": "Atstatyti filtrus"
         }
     },
     "datatable": {
@@ -143,6 +157,7 @@
         "amount": "Suma",
         "type": "Tipas",
         "win_amount": "Laimėjimo suma",
-        "actions": "Veiksmai"
+        "actions": "Veiksmai",
+        "noData": "Nėra rezultatų."
     }
 }

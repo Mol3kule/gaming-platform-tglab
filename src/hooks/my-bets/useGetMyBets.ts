@@ -15,7 +15,7 @@ interface MyBetsParams {
 
 export const useGetMyBets = ({ id, page = 1, limit = ITEMS_PER_PAGE, status }: MyBetsParams) => {
     return useQuery({
-        queryKey: ['my-bets'],
+        queryKey: ['my-bets', { id, page, limit, status }],
         queryFn: async () => {
             try {
                 const token = await getValidServerToken();

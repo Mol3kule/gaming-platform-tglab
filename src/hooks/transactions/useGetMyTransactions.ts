@@ -15,7 +15,7 @@ interface MyTransactionParams {
 
 export const useGetMyTransactions = ({ id, page = 1, limit = ITEMS_PER_PAGE, type }: MyTransactionParams) => {
     return useQuery({
-        queryKey: ['my-transactions'],
+        queryKey: ['my-transactions', { id, page, limit, type }],
         queryFn: async () => {
             try {
                 const token = await getValidServerToken();

@@ -125,6 +125,13 @@
             "win": "Win",
             "cancel": "Cancel",
             "bet": "Bet"
+        },
+        "filter": {
+            "title": "Filter Transactions",
+            "typeLabel": "Transaction Type",
+            "allTypes": "All Types",
+            "apply": "Apply Filters",
+            "reset": "Reset Filters"
         }
     },
     "my-bets": {
@@ -135,6 +142,13 @@
             "lost": "Lost",
             "canceled": "Canceled",
             "pending": "Pending"
+        },
+        "filter": {
+            "title": "Filter Bets",
+            "statusLabel": "Bet Status",
+            "allStatus": "All Statuses",
+            "apply": "Apply Filters",
+            "reset": "Reset Filters"
         }
     },
     "datatable": {
@@ -143,6 +157,7 @@
         "amount": "Amount",
         "type": "Type",
         "win_amount": "Win Amount",
-        "actions": "Actions"
+        "actions": "Actions",
+        "noData": "No results."
     }
 }

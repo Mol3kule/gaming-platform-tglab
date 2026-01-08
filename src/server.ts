@@ -28,8 +28,7 @@ app.prepare().then(async () => {
             password: await hashPassword('test123'),
             balance: 1000,
             currency: 'EUR',
-            accessToken:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhYWJkMzVjOC0xYmZhLTRhMjgtYmQ4NC1iZmI1Yjg5MjJmNTUiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwibmFtZSI6IlRlc3QiLCJpYXQiOjE3Njc4ODIxMjAsImV4cCI6MTc2ODQ4NjkyMCwiaXNzIjoiZ2FtaW5nLXBsYXRmb3JtIn0.DnZOxUw0-w31qNcYkT0oYVmEsZVNiw43kll58njfMdU',
+            accessToken: null,
             bets: [],
             transactions: [],
             socketId: null,
@@ -365,6 +364,7 @@ app.prepare().then(async () => {
     server.get('/api/my-transactions', authMiddleware, (req, res) => {
         const { id, type, page, limit } = req.query;
 
+        console.log(`Transaction type: ${type}`);
         if (!page || !limit) return res.status(400).json({ message: 'Invalid parameters' });
 
         const player = players.find(
