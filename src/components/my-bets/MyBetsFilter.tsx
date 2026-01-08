@@ -1,6 +1,5 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BetStatus } from '@/types/player.types';
@@ -9,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Filter } from 'lucide-react';
+import { FilterContent } from '../filters/filter-content';
 
 const BET_STATUSES: BetStatus[] = ['pending', 'win', 'lost', 'canceled'];
 
@@ -55,38 +55,6 @@ export const MyBetsFilter = ({ isMobile = false }: MyBetsFilterProps) => {
         ...BET_STATUSES.map((s) => ({ value: s, label: t(`status.${s}`) })),
     ];
 
-    const FilterContent = () => (
-        <div className="space-y-4">
-            <div className="flex flex-col gap-4">
-                <Label>{t('filter.statusLabel')}</Label>
-                <div className="flex flex-col gap-2">
-                    {statusOptions.map((option) => (
-                        <button
-                            key={option.value}
-                            onClick={() => setStatus(option.value)}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                                status === option.value
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                            }`}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-                <Button onClick={handleApplyFilters} className="flex-1">
-                    {t('filter.apply')}
-                </Button>
-                <Button onClick={handleReset} variant="outline" className="flex-1">
-                    {t('filter.reset')}
-                </Button>
-            </div>
-        </div>
-    );
-
     if (isMobile) {
         return (
             <Sheet>
@@ -101,7 +69,14 @@ export const MyBetsFilter = ({ isMobile = false }: MyBetsFilterProps) => {
                         <SheetTitle>{t('filter.title')}</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6">
-                        <FilterContent />
+                        <FilterContent
+                            t={t}
+                            options={statusOptions}
+                            setOption={setStatus}
+                            selectedOption={status}
+                            handleApplyFilters={handleApplyFilters}
+                            handleReset={handleReset}
+                        />
                     </div>
                 </SheetContent>
             </Sheet>
@@ -114,7 +89,14 @@ export const MyBetsFilter = ({ isMobile = false }: MyBetsFilterProps) => {
                 <CardTitle>{t('filter.title')}</CardTitle>
             </CardHeader>
             <CardContent>
-                <FilterContent />
+                <FilterContent
+                    t={t}
+                    options={statusOptions}
+                    setOption={setStatus}
+                    selectedOption={status}
+                    handleApplyFilters={handleApplyFilters}
+                    handleReset={handleReset}
+                />
             </CardContent>
         </Card>
     );

@@ -146,6 +146,7 @@
         "filter": {
             "title": "Filter Bets",
             "statusLabel": "Bet Status",
+            "typeLabel": "Bet Type",
             "allStatus": "All Statuses",
             "apply": "Apply Filters",
             "reset": "Reset Filters"

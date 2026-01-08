@@ -146,6 +146,7 @@
         "filter": {
             "title": "Filtruoti statymus",
             "statusLabel": "Statymo būsena",
+            "typeLabel": "Statymo tipas",
             "allStatus": "Visos būsenos",
             "apply": "Pritaikyti filtrus",
             "reset": "Atstatyti filtrus"
