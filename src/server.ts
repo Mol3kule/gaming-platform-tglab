@@ -28,7 +28,8 @@ app.prepare().then(async () => {
             password: await hashPassword('test123'),
             balance: 1000,
             currency: 'EUR',
-            accessToken: null,
+            accessToken:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhYWJkMzVjOC0xYmZhLTRhMjgtYmQ4NC1iZmI1Yjg5MjJmNTUiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwibmFtZSI6IlRlc3QiLCJpYXQiOjE3Njc4ODIxMjAsImV4cCI6MTc2ODQ4NjkyMCwiaXNzIjoiZ2FtaW5nLXBsYXRmb3JtIn0.DnZOxUw0-w31qNcYkT0oYVmEsZVNiw43kll58njfMdU',
             bets: [],
             transactions: [],
             socketId: null,

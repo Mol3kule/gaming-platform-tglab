@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { Header } from '@/components/header';
+import { SocketContextProvider } from '@/contexts/SocketContext';
 
 interface Props {
     children: ReactNode;
@@ -33,12 +34,12 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
 
 export default async function ProtectedLayout({ children }: Readonly<Props>) {
     return (
-        <>
+        <SocketContextProvider>
             <AppSidebar />
             <main className="flex flex-col w-full">
                 <Header />
                 {children}
             </main>
-        </>
+        </SocketContextProvider>
     );
 }

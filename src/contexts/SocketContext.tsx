@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, use, useContext, useEffect, useMemo, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 
 interface iSocketContext {
@@ -12,18 +12,18 @@ export const SocketContext = createContext<iSocketContext | null>(null);
 
 export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [isSocketConnected, setIsSocketConnected] = useState(false);
-
-    const socket = useMemo(() => {
-        return io(process.env.SOCKET_URL!, {
-            withCredentials: true,
-        });
-    }, []);
+    const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
+        const newSocket = io(process.env.SOCKET_URL!, {
+            withCredentials: true,
+        });
+
+        setSocket(newSocket);
         return () => {
-            socket.disconnect();
+            newSocket.disconnect();
         };
-    }, [socket]);
+    }, []);
 
     useEffect(() => {
         if (!socket) return;
