@@ -1,6 +1,7 @@
 'use client';
 
-import { LanguageSwitcher } from './ui/LanguageSwitcher';
+import { LanguageSwitcher } from './language-switcher';
+import { ThemeToggle } from './theme-toggle';
 import { useLocale } from 'next-intl';
 import { SidebarTrigger, useSidebar } from './ui/sidebar';
 
@@ -15,7 +16,10 @@ export const Header = ({ displaySidebar = true }: Props) => {
     return (
         <header className="flex justify-between items-center gap-2 p-2">
             {displaySidebar && <SidebarTrigger className={open ? 'mt-2.5' : ''} />}
-            <LanguageSwitcher currentLocale={locale} />
+            <div className="ml-auto flex items-center gap-2">
+                <ThemeToggle />
+                <LanguageSwitcher currentLocale={locale} />
+            </div>
         </header>
     );
 };

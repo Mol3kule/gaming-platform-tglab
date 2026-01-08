@@ -14,16 +14,28 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { SafeUser } from '@/types/player.types';
+import { useLogoutMutation } from '@/hooks/auth/useLogoutMutation';
+import { useRouter } from 'next/navigation';
 
 interface NavUserProps {
     user: SafeUser;
 }
 
 export function NavUser({ user }: NavUserProps) {
+    const router = useRouter();
+    const { mutateAsync: logoutAsync, isPending } = useLogoutMutation();
     const { isMobile } = useSidebar();
 
     const avatarUrl =
         'https://images.unsplash.com/photo-1740252117070-7aa2955b25f8?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
+    const handleLogout = async () => {
+        await logoutAsync(undefined, {
+            onSuccess: () => {
+                router.push('/');
+            },
+        });
+    };
 
     return (
         <SidebarMenu>
@@ -76,7 +88,7 @@ export function NavUser({ user }: NavUserProps) {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout} disabled={isPending}>
                             <LogOut />
                             Log out
                         </DropdownMenuItem>

@@ -28,8 +28,7 @@ app.prepare().then(async () => {
             password: await hashPassword('test123'),
             balance: 1000,
             currency: 'EUR',
-            accessToken:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmIzMjU1My01ZDMyLTQxMTMtYTI0YS04MmI4NDkzODMwODEiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwibmFtZSI6IlRlc3QiLCJpYXQiOjE3Njc3MzA0MTQsImV4cCI6MTc2ODMzNTIxNCwiaXNzIjoiZ2FtaW5nLXBsYXRmb3JtIn0.aP8CqzOcP_UNElyVNmxWIy7XFOpRHhGaGhZPKh4Y4H8',
+            accessToken: null,
             bets: [],
             transactions: [],
             socketId: null,
@@ -245,7 +244,6 @@ app.prepare().then(async () => {
             if (player.socketId) {
                 const socket = io.sockets.sockets.get(player.socketId);
                 socket?.emit('updateBalance', { balance: player.balance });
-                console.log('Emitting updateBalance to socket ID 1:', player.socketId);
             }
 
             res.json({
@@ -275,7 +273,6 @@ app.prepare().then(async () => {
             if (player.socketId) {
                 const socket = io.sockets.sockets.get(player.socketId);
                 socket?.emit('updateBalance', { balance: player.balance });
-                console.log('Emitting updateBalance to socket ID 2:', player.socketId);
             }
 
             res.json({
@@ -432,6 +429,18 @@ app.prepare().then(async () => {
             balance: player.balance,
             currency: player.currency,
         });
+    });
+
+    server.post('/api/logout', authMiddleware, (req, res) => {
+        const player = players.find(
+            (player) => player.accessToken === extractTokenFromHeader(req.headers.authorization),
+        )!;
+
+        player.accessToken = null;
+
+        res.clearCookie('auth_token');
+
+        res.json({ message: 'Logged out successfully' });
     });
 
     // Let Next.js handle all other routes

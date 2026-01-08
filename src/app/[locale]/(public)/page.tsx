@@ -11,9 +11,9 @@ export default async function Home() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black px-4">
-            <Header displayMenu={false} />
-            <main className="w-full flex items-center justify-center">
+        <div className="flex flex-col w-full min-h-screen bg-zinc-50 font-sans dark:bg-black px-4">
+            <Header displaySidebar={false} />
+            <main className="w-full flex flex-1 items-center justify-center">
                 <AuthFormContainer />
             </main>
         </div>

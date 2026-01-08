@@ -55,7 +55,9 @@ const BettingOption = ({
 }) => (
     <Card
         className={`p-6 cursor-pointer transition-all border-2 ${
-            isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 hover:bg-accent/50'
+            isSelected
+                ? 'border-primary bg-primary/10 dark:border-primary dark:bg-primary/10'
+                : 'border-border hover:border-primary/50 hover:bg-accent/50 dark:hover:border-primary/50 dark:hover:bg-accent/50'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         onClick={() => !disabled && onSelect(betType)}
     >

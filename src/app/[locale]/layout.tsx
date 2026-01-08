@@ -47,7 +47,7 @@ export default async function RootLayout({ children, params }: Readonly<Props>) 
     const user = await getAuthUser();
 
     return (
-        <html lang={locale ?? i18nConfig.defaultLocale}>
+        <html lang={locale ?? i18nConfig.defaultLocale} suppressHydrationWarning>
             <body className={`${inter.variable} antialiased`}>
                 <NextIntlClientProvider messages={messages}>
                     <AppProvider user={user}>{children}</AppProvider>

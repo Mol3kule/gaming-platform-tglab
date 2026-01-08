@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { SafeUser } from '@/types/player.types';
+import { useRouter } from 'next/navigation';
 
 type AuthMode = 'login' | 'register';
 
@@ -20,6 +21,7 @@ export function AuthFormContainer() {
     const t = useTranslations('auth');
     const [mode, setMode] = useState<AuthMode>('login');
     const { login } = useAuth();
+    const router = useRouter();
 
     const { mutateAsync: loginMutationAsync, isPending: isLoginPending } = useLoginMutation();
     const handleLogin = async (data: LoginFormData) => {
@@ -32,6 +34,7 @@ export function AuthFormContainer() {
             login(user as SafeUser); // Update auth context with logged-in user
 
             toast.success(t('login.successMessage', { username: user.name }));
+            router.push('/games');
         } catch (error) {
             if (error instanceof AxiosError && error.status === 400) {
                 toast.error(t(error.response?.data?.message));

@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { SocketContextProvider } from '@/contexts/SocketContext';
 import { SafeUser } from '@/types/player.types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'next-themes';
 import { ReactNode } from 'react';
 
 const queryClient = new QueryClient({
@@ -23,11 +24,13 @@ interface AppProviderProps {
 export const AppProvider = ({ children, user }: AppProviderProps) => {
     return (
         <QueryClientProvider client={queryClient}>
-            <SocketContextProvider>
-                <AuthProvider user={user}>
-                    <SidebarProvider>{children}</SidebarProvider>
-                </AuthProvider>
-            </SocketContextProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                <SocketContextProvider>
+                    <AuthProvider user={user}>
+                        <SidebarProvider>{children}</SidebarProvider>
+                    </AuthProvider>
+                </SocketContextProvider>
+            </ThemeProvider>
         </QueryClientProvider>
     );
 };
